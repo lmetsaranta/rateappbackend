@@ -1,34 +1,43 @@
 package fi.academy.rateappbackend.entities;
 
 
+import org.hibernate.annotations.Cascade;
+
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-private Long id;
+    private Long id;
 
-@NotBlank
+    @NotBlank
     @Size(max = 40)
     private String name;
 
-@NotBlank
+    @NotBlank
     @Size(max = 15)
     private String username;
 
-@NotBlank
-@Size(max = 40)
+    @NotBlank
+    @Size(max = 40)
     @Email
     private String email;
 
-@NotBlank
+    @NotBlank
     @Size(max = 100)
-private String password;
+    private String password;
+
+    @Cascade(value = org.hibernate.annotations.CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "userroles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> roles = new HashSet<>();
 
     public User() {
     }
@@ -78,5 +87,13 @@ private String password;
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
     }
 }
