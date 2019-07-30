@@ -13,7 +13,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 public class AuthenticationController {
 
     @Autowired
@@ -31,5 +31,10 @@ User created = userRepository.save(user);
             .toUri();
     return ResponseEntity.created(location).build();
 }
+
+//@PostMapping("/signin")
+//public ResponseEntity<?> authenticateUser(SigninRequest signinRequest) {
+//// tähän tulee autentikointi jossain vaiheessa.
+//}
 
 }
