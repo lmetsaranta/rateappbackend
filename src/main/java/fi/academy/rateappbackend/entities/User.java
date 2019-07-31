@@ -1,6 +1,7 @@
 package fi.academy.rateappbackend.entities;
 
 
+import fi.academy.rateappbackend.audit.DateAudit;
 import org.hibernate.annotations.Cascade;
 
 import javax.persistence.*;
@@ -12,7 +13,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "users")
-public class User {
+public class User extends DateAudit {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
