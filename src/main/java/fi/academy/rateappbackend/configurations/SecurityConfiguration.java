@@ -83,9 +83,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .permitAll()
                 .antMatchers("/api/auth/**")
                 .permitAll()
-                .antMatchers("/api/user/tarkistaKayttajanimenSaatavuus", "/api/user/tarkistaSahkopostiosoitteenSaatavuus")
+                .antMatchers(HttpMethod.GET,"/api/content/**")
                 .permitAll()
-                .antMatchers(HttpMethod.GET, "/api/aanestys/**", "/api/users/**")
+                .antMatchers("/api/img/**")
                 .permitAll()
                 .anyRequest()
                 .authenticated();
