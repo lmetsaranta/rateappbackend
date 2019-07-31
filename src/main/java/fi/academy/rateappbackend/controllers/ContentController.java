@@ -3,6 +3,11 @@ package fi.academy.rateappbackend.controllers;
 import fi.academy.rateappbackend.entities.Content;
 import fi.academy.rateappbackend.exceptions.ResourceNotFoundException;
 import fi.academy.rateappbackend.repositories.ContentRepository;
+import fi.academy.rateappbackend.security.CurrentUser;
+import fi.academy.rateappbackend.security.UserPrincipal;
+import fi.academy.rateappbackend.service.ContentService;
+import fi.academy.rateappbackend.utils.ContentResponse;
+import fi.academy.rateappbackend.utils.PageableResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,9 +25,14 @@ public class ContentController {
     @Autowired
     ContentRepository contentRepository;
 
+    @Autowired
+    ContentService contentService;
+
     @GetMapping("/content")
-    public List<Content> getAllContent() {
-        return contentRepository.findAll();
+    public PageableResponse<ContentResponse> getAllContent(@CurrentUser UserPrincipal currentuser,
+                                                           @RequestParam(value = "page") int page,
+                                                           @RequestParam(value = "size") int size) {
+        return contentService.getAllContent(currentuser, page, size);
     }
 
     @GetMapping("/content/{id}")
