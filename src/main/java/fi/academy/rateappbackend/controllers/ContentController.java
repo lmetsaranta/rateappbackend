@@ -29,10 +29,10 @@ public class ContentController {
     ContentService contentService;
 
     @GetMapping("/content")
-    public PageableResponse<ContentResponse> getAllContent(@CurrentUser UserPrincipal currentuser,
+    public PageableResponse<ContentResponse> getAllContent(@CurrentUser UserPrincipal currentUser,
                                                            @RequestParam(value = "page") int page,
                                                            @RequestParam(value = "size") int size) {
-        return contentService.getAllContent(currentuser, page, size);
+        return contentService.getAllContent(currentUser, page, size);
     }
 
     @GetMapping("/content/{id}")
@@ -40,6 +40,14 @@ public class ContentController {
         Content content = contentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Sisältöä", "Id", id));
         return content;
+    }
+
+    @GetMapping("/content/me/{username}")
+    public PageableResponse<ContentResponse> getContentCreatedByCurrentUser(@PathVariable(value = "username") String username,
+                                                                            @CurrentUser UserPrincipal currentUser,
+                                                           @RequestParam(value = "page") int page,
+                                                           @RequestParam(value = "size") int size) {
+        return contentService.getContentCreatedBy(username, currentUser, page, size);
     }
 
     @PostMapping("/content")

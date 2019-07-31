@@ -4,6 +4,7 @@ import fi.academy.rateappbackend.entities.Content;
 import fi.academy.rateappbackend.entities.Like;
 import fi.academy.rateappbackend.entities.User;
 import fi.academy.rateappbackend.exceptions.BadRequestException;
+import fi.academy.rateappbackend.exceptions.ResourceNotFoundException;
 import fi.academy.rateappbackend.repositories.ContentRepository;
 import fi.academy.rateappbackend.repositories.LikeRepository;
 import fi.academy.rateappbackend.repositories.UserRepository;
@@ -56,7 +57,37 @@ public class ContentService {
         List<ContentResponse> contentResponses = contents.map(content -> {
             return ModelMapper.mapContentToContentResponse(content,
                     creatorMap.get(content.getCreatedBy()),
-            contentUserLikeMap == null ? null :contentUserLikeMap.getOrDefault(content.getId(), null));
+                    contentUserLikeMap == null ? null : contentUserLikeMap.getOrDefault(content.getId(), null));
+        }).getContent();
+
+        return new PageableResponse<>(contentResponses, contents.getNumber(), contents.getSize(), contents.getTotalElements(), contents.getTotalPages(), contents.isLast());
+    }
+
+    public PageableResponse<ContentResponse> getContentCreatedBy(String username, UserPrincipal currentUser, int page, int size) {
+        if (page < 0) {
+            throw new BadRequestException("Page number cannot be less than zero.");
+        }
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Käyttäjä", "käyttäjänimi", username));
+
+        Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
+        Page<Content> contents = contentRepository.findByCreatedBy(user.getId(), pageable);
+
+        if (contents.getNumberOfElements() == 0) {
+            return new PageableResponse<>(Collections.emptyList(), contents.getNumber(),
+                    contents.getSize(), contents.getTotalElements(), contents.getTotalPages(), contents.isLast());
+        }
+
+        List<Long> contentIds = contents.map(Content::getId).getContent();
+        Map<Long, Long> contentUserLikeMap = getContentUserLikeMap(currentUser, contentIds);
+//        Map<Long, User> creatorMap = getContentCreatorMap(contents.getContent());
+
+        List<ContentResponse> contentResponses = contents.map(content -> {
+            return ModelMapper.mapContentToContentResponse(content,
+                    user,
+//                    creatorMap.get(content.getCreatedBy()),
+                    contentUserLikeMap == null ? null : contentUserLikeMap.getOrDefault(content.getId(), null));
         }).getContent();
 
         return new PageableResponse<>(contentResponses, contents.getNumber(), contents.getSize(), contents.getTotalElements(), contents.getTotalPages(), contents.isLast());
