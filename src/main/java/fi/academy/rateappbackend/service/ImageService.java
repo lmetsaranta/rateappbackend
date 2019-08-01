@@ -32,11 +32,13 @@ public class ImageService {
         return resourceLoader.getResource("file:" + UPLOAD_ROOT + "/" + filename);
     }
 
-    public void createImage(MultipartFile file) throws IOException {
+    public Image createImage(MultipartFile file) throws IOException {
+        Image created = null;
         if(!file.isEmpty()) {
             Files.copy(file.getInputStream(), Paths.get(UPLOAD_ROOT, file.getOriginalFilename()));
-            imageRepository.save(new Image(file.getOriginalFilename()));
+            created = imageRepository.save(new Image(file.getOriginalFilename()));
         }
+        return created;
     }
 
     public void DeleteImage(String filename) throws IOException {
