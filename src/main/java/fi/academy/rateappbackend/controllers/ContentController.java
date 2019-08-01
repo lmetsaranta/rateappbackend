@@ -58,12 +58,9 @@ public class ContentController {
     }
 
     @PostMapping("/content")
-    public ResponseEntity<?> addContentAndImage(@RequestBody Content content, MultipartFile multipartFile) throws IOException {
-        Image image = imageService.createImage(multipartFile);
+    public ResponseEntity<?> addContentAndImage(@RequestBody Content content)  {
 
         Content added = contentRepository.save(content);
-
-        added.setImage(image);
 
         URI location = UriComponentsBuilder.newInstance()
                 .scheme("http")
