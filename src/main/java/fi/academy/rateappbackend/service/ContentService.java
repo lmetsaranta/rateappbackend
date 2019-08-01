@@ -12,7 +12,10 @@ import fi.academy.rateappbackend.security.UserPrincipal;
 import fi.academy.rateappbackend.utils.ContentResponse;
 import fi.academy.rateappbackend.utils.ModelMapper;
 import fi.academy.rateappbackend.utils.PageableResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -36,6 +39,8 @@ public class ContentService {
 
     @Autowired
     UserRepository userRepository;
+
+    private static final Logger logger = LoggerFactory.getLogger(ContentService.class);
 
     public PageableResponse<ContentResponse> getAllContent(UserPrincipal currentUser, int page, int size) {
         if (page < 0) {
@@ -91,6 +96,30 @@ public class ContentService {
         }).getContent();
 
         return new PageableResponse<>(contentResponses, contents.getNumber(), contents.getSize(), contents.getTotalElements(), contents.getTotalPages(), contents.isLast());
+    }
+
+    public ContentResponse castLikeAndRefreshContent(Long contentId, UserPrincipal currentUser) {
+        Content content = contentRepository.findById(contentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Sisältöä", "Id", contentId));
+
+        User user = userRepository.getOne(currentUser.getId());
+
+        Like like = new Like();
+        like.setContent(content);
+        like.setUser(user);
+
+        try {
+            like = likeRepository.save(like);
+        } catch (DataIntegrityViolationException ex) {
+            logger.info("Käyttäjä {} on jo äänestänyt {} äänestystä", currentUser, contentId);
+            throw new BadRequestException("Pahoittelut! Voit tykätä vain kerran.");
+        }
+
+User creator =userRepository.findById(content.getCreatedBy())
+        .orElseThrow(() -> new ResourceNotFoundException("Käyttäjä", "id", content.getCreatedBy()));
+
+        return ModelMapper.mapContentToContentResponse(content, creator, like.getUser().getId());
+
     }
 
     private Map<Long, Long> getContentUserLikeMap(UserPrincipal currentUser, List<Long> contentIds) {

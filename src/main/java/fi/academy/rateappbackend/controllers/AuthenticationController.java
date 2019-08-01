@@ -42,7 +42,13 @@ public class AuthenticationController {
 
     @Autowired
     JwtTokenProvider jwtTokenProvider;
-
+/*
+* Method creates new user only if username and email are not allready reserved.
+* Method also encodes the password using password encoder and sets user's Role
+* default value as ROLE_USER.
+* @return either BAD_REQUEST or message: Username created succesfully.
+* @param user includes name, username, email and password.
+* */
     @PostMapping("/signup")
     public ResponseEntity<?> createUser(@Valid @RequestBody User user) {
         if (userRepository.existsByUsername(user.getUsername())) {
@@ -70,6 +76,11 @@ public class AuthenticationController {
         return ResponseEntity.created(location).body(new ApiRequest(true, "Käyttäjä luotu onnistuneesti."));
     }
 
+    /*
+    * Method checks if username or email and password are valid and and authenticates user.
+    * @return new JWT token.
+    * @param SignInRequest includes username or email + password.
+    * */
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody SignInRequest signInRequest) {
         Authentication authentication = authenticationManager.authenticate(
