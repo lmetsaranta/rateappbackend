@@ -2,10 +2,7 @@ package fi.academy.rateappbackend.entities;
 
 import fi.academy.rateappbackend.audit.UserDateAudit;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
@@ -22,6 +19,11 @@ public class Content extends UserDateAudit {
     @NotBlank
     @Size(max = 255)
     private String text;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "image_fk")
+    public Image image;
+
 
     public Content() {
     }
@@ -53,5 +55,13 @@ public class Content extends UserDateAudit {
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    public Image getImage() {
+        return image;
+    }
+
+    public void setImage(Image image) {
+        this.image = image;
     }
 }

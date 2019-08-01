@@ -10,6 +10,7 @@ public class ModelMapper {
         contentResponse.setId(content.getId());
         contentResponse.setHeadline(content.getHeadline());
         contentResponse.setText(content.getText());
+        contentResponse.setImage(content.getImage());
         contentResponse.setCreatedAt(content.getCreatedAt());
 
         UserDetails userDetails = new UserDetails(user.getId(), user.getUsername(), user.getName());

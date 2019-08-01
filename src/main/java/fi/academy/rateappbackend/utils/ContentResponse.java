@@ -1,6 +1,7 @@
 package fi.academy.rateappbackend.utils;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import fi.academy.rateappbackend.entities.Image;
 
 import java.time.Instant;
 
@@ -8,6 +9,7 @@ public class ContentResponse {
 private Long id;
 private String headline;
 private String text;
+private Image image;
 private UserDetails createdBy;
 private Instant createdAt;
 
@@ -60,5 +62,13 @@ private Long isLiked;
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    public Image getImage() {
+        return image;
+    }
+
+    public void setImage(Image image) {
+        this.image = image;
     }
 }
