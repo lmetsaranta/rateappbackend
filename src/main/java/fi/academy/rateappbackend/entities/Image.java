@@ -1,5 +1,7 @@
 package fi.academy.rateappbackend.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 
@@ -12,6 +14,7 @@ public class Image {
     @NotBlank
     private String name;
 
+    @JsonIgnore
     @OneToOne(mappedBy = "image")
     public Content content;
 

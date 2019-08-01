@@ -35,12 +35,20 @@ public class ContentController {
     @Autowired
     ImageService imageService;
 
+
+    /*
+    * Method returns all content from database in pageable response and authenticates current user.
+    * Content includes headline, text, image, information about user creation time and if the content
+    * has been liked by current user.
+    * @return pageable response of all contents.
+    */
     @GetMapping("/content")
     public PageableResponse<ContentResponse> getAllContent(@CurrentUser UserPrincipal currentUser,
                                                            @RequestParam(value = "page") int page,
                                                            @RequestParam(value = "size") int size) {
         return contentService.getAllContent(currentUser, page, size);
     }
+
 
     @GetMapping("/content/{id}")
     public Content getContentById(@PathVariable(value = "id") Long id) {
@@ -49,6 +57,13 @@ public class ContentController {
         return content;
     }
 
+    /*
+     * Method authenticates current user and returns all content from database in pageable response
+     * that are created by current user.
+     * Content includes headline, text, image, information about user creation time and if the content
+     * has been liked by current user.
+     * @return pageable response of all contents.
+     */
     @GetMapping("/content/me/{username}")
     public PageableResponse<ContentResponse> getContentCreatedByCurrentUser(@PathVariable(value = "username") String username,
                                                                             @CurrentUser UserPrincipal currentUser,
@@ -57,8 +72,28 @@ public class ContentController {
         return contentService.getContentCreatedBy(username, currentUser, page, size);
     }
 
+    @PostMapping("/contentAndImage")
+    public ResponseEntity<?> addContentAndImage(@RequestParam String headline,
+                                                @RequestParam String text,
+                                                @RequestParam MultipartFile multipartFile) throws IOException {
+        Image image = imageService.createImage(multipartFile);
+        System.out.println(multipartFile);
+        Content content = new Content(headline, text);
+        content.setImage(image);
+        Content added = contentRepository.save(content);
+
+        URI location = UriComponentsBuilder.newInstance()
+                .scheme("http")
+                .host("localhost")
+                .port(8080)
+                .path("/content/{id}")
+                .buildAndExpand(added.getId())
+                .toUri();
+        return ResponseEntity.created(location).build();
+    }
+
     @PostMapping("/content")
-    public ResponseEntity<?> addContentAndImage(@RequestBody Content content)  {
+    public ResponseEntity<?> addContent(@RequestBody Content content) {
 
         Content added = contentRepository.save(content);
 
@@ -70,5 +105,12 @@ public class ContentController {
                 .buildAndExpand(added.getId())
                 .toUri();
         return ResponseEntity.created(location).build();
+    }
+
+    @PostMapping("/content/like")
+    public ContentResponse castLike(@CurrentUser UserPrincipal currentUser,
+                                      @RequestBody Content content) {
+
+return contentService.castLikeAndRefreshContent(content.getId(), currentUser);
     }
 }

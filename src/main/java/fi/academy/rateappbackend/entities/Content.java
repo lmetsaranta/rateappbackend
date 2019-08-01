@@ -20,7 +20,7 @@ public class Content extends UserDateAudit {
     @Size(max = 255)
     private String text;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, optional = true)
     @JoinColumn(name = "image_fk")
     public Image image;
 
